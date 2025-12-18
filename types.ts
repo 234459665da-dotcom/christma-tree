@@ -1,3 +1,4 @@
+
 import * as THREE from 'three';
 
 export enum AppMode {
@@ -5,6 +6,9 @@ export enum AppMode {
   SCATTER = 'SCATTER',
   TREE = 'TREE'
 }
+
+// Define GestureType to represent supported hand gestures for tracking
+export type GestureType = 'NONE' | 'PINCH' | 'FIST' | 'L_SHAPE' | 'OPEN_PALM';
 
 export type ParticleType = 'ORNAMENT' | 'GIFT' | 'CANDY_CANE' | 'STAR_ORNAMENT' | 'BRANCH' | 'BELL' | 'SNOWFLAKE' | 'LIGHT' | 'PHOTO';
 
@@ -20,4 +24,5 @@ export interface Particle {
   // Specific for photos
   isPhoto?: boolean;
   originalScale?: number;
+  id?: string; // Unique ID for selecting photos
 }
