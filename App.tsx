@@ -743,6 +743,16 @@ const App: React.FC = () => {
     };
 
     const setupVision = async () => {
+      // SAFETY TIMEOUT: Force app to start if camera/model is too slow
+      const safetyTimeout = setTimeout(() => {
+          if (modeRef.current === AppMode.LOADING) {
+              console.warn("Loading timed out. Forcing Mouse Mode.");
+              setLoadingText("MOUSE ONLY");
+              setAppMode(AppMode.TREE);
+              modeRef.current = AppMode.TREE;
+          }
+      }, 10000); // 10 seconds
+
       try {
         setLoadingText("LIGHTING CANDLES");
         const vision = await FilesetResolver.forVisionTasks(
@@ -774,7 +784,8 @@ const App: React.FC = () => {
         await new Promise<void>((resolve) => {
             v.onloadeddata = () => { v.play().catch(console.error); resolve(); }
         });
-
+        
+        clearTimeout(safetyTimeout); // Clear timeout if successful
         setLoadingText("READY");
         setAppMode(AppMode.TREE); 
         modeRef.current = AppMode.TREE;
@@ -868,9 +879,18 @@ const App: React.FC = () => {
         };
         visionLoop();
 
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
+        // Show the actual error on screen to help debug on tablet
+        setDebugInfo(`ERROR: ${err.name || err.message || 'UNKNOWN'}`);
         setLoadingText("MOUSE ONLY");
+        // Ensure app still starts even if camera fails
+        setTimeout(() => {
+             if (modeRef.current === AppMode.LOADING) {
+                 setAppMode(AppMode.TREE);
+                 modeRef.current = AppMode.TREE;
+             }
+        }, 2000);
       }
     };
     setupVision();
@@ -921,6 +941,8 @@ const App: React.FC = () => {
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 text-[#ffbf00]">
           <div className="w-16 h-16 border-4 border-t-transparent border-[#ffbf00] rounded-full animate-spin mb-6 shadow-[0_0_20px_#ffbf00]"></div>
           <h2 className="font-cinzel text-xl tracking-[0.3em] animate-pulse text-center px-4">{loadingText}</h2>
+          {/* Debug info shown during loading if error occurs */}
+          <p className="text-red-500 text-xs mt-4">{debugInfo}</p>
         </div>
       )}
 

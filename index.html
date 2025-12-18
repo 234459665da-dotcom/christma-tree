@@ -26,6 +26,10 @@
       
       /* Custom Scrollbar for hidden overflows */
       ::-webkit-scrollbar { width: 0px; background: transparent; }
+      
+      /* Fade in animation for root */
+      #root { opacity: 0; animation: fadeIn 1s forwards; }
+      @keyframes fadeIn { to { opacity: 1; } }
     </style>
   <script type="importmap">
 {
@@ -44,7 +48,13 @@
 </script>
 </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <div id="root">
+        <!-- Fallback content if JS fails to load -->
+        <div style="height: 100vh; display: flex; align-items: center; justify-content: center; color: #ffbf00; font-family: serif;">
+            LOADING EXPERIENCE...
+        </div>
+    </div>
+    <!-- CHANGED: Use relative path ./index.tsx instead of absolute /index.tsx -->
+    <script type="module" src="./index.tsx"></script>
   </body>
 </html>
