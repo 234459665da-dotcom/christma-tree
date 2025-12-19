@@ -1,7 +1,7 @@
 {
+  "name": "InteractiveGestureChristmasTree",
+  "description": "A cinematic, gesture-controlled interactive Christmas experience using Three.js and MediaPipe.",
   "requestFramePermissions": [
     "camera"
-  ],
-  "name": "Aggregated Christmas Tree",
-  "description": ""
+  ]
 }

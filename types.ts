@@ -1,28 +1,27 @@
-
-import * as THREE from 'three';
-
 export enum AppMode {
-  LOADING = 'LOADING',
+  TREE = 'TREE',
   SCATTER = 'SCATTER',
-  TREE = 'TREE'
+  FOCUS = 'FOCUS'
 }
 
-// Define GestureType to represent supported hand gestures for tracking
-export type GestureType = 'NONE' | 'PINCH' | 'FIST' | 'L_SHAPE' | 'OPEN_PALM';
+export enum GestureType {
+  NONE = 'NONE',
+  OPEN_HAND = 'OPEN_HAND',
+  FIST = 'FIST',
+  PINCH = 'PINCH'
+}
 
-export type ParticleType = 'ORNAMENT' | 'GIFT' | 'CANDY_CANE' | 'STAR_ORNAMENT' | 'BRANCH' | 'BELL' | 'SNOWFLAKE' | 'LIGHT' | 'PHOTO';
+export interface Photo {
+  id: string;
+  url: string;
+  position: [number, number, number];
+  rotation: [number, number, number];
+}
 
-export interface Particle {
-  mesh: THREE.Object3D;
-  type: ParticleType;
-  // Target positions
-  treePos: THREE.Vector3;
-  scatterPos: THREE.Vector3;
-  // Physics/Animation props
-  velocity: THREE.Vector3;
-  rotationSpeed: THREE.Vector3;
-  // Specific for photos
-  isPhoto?: boolean;
-  originalScale?: number;
-  id?: string; // Unique ID for selecting photos
+export interface HandState {
+  present: boolean;
+  gesture: GestureType;
+  x: number; // Normalized 0-1
+  y: number; // Normalized 0-1
+  pinchDistance: number;
 }
