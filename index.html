@@ -1,551 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Gesture Christmas Tree</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Times+New+Roman&display=swap" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- PWA Config -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Noel Elegance">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/180/christmas-tree.png">
+    
+    <title>Aggregated Christmas Tree</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
     
     <style>
-        body { margin: 0; padding: 0; background-color: #000000; overflow: hidden; font-family: 'Times New Roman', serif; user-select: none; }
-        
-        #ui-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
-            display: flex; flex-direction: column; justify-content: space-between; p: 2rem;
-            z-index: 10;
-        }
-
-        .title-container {
-            text-align: center; margin-top: 2rem;
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
-        }
-
-        h1 {
-            font-family: 'Cinzel', serif; color: #d4af37; font-size: 3rem; margin: 0;
-            background: linear-gradient(to bottom, #ffd700, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: 0.2rem;
-        }
-
-        .subtitle {
-            color: #a0a0a0; letter-spacing: 0.3em; font-size: 0.8rem; margin-top: 0.5rem; text-transform: uppercase;
-        }
-
-        #loading-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000000; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 1s ease;
-        }
-
-        .spinner {
-            width: 60px; height: 60px; border: 4px solid rgba(212, 175, 55, 0.3);
-            border-top: 4px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .loading-text {
-            color: #d4af37; font-family: 'Cinzel', serif; letter-spacing: 0.2em; font-size: 1.2rem;
-        }
-
-        .controls {
-            pointer-events: auto; text-align: center; margin-bottom: 3rem;
-        }
-
-        #upload-btn {
-            background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; color: #d4af37;
-            padding: 10px 30px; font-family: 'Cinzel', serif; font-size: 1rem; cursor: pointer;
-            transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.1em;
-        }
-
-        #upload-btn:hover { background: #d4af37; color: #000; box-shadow: 0 0 15px #d4af37; }
-
-        .debug-info {
-            position: absolute; bottom: 10px; left: 10px; color: #333; font-size: 10px;
-        }
-        
-        #hidden-input { display: none; }
-        
-        /* Interactive Cursor */
-        #cursor {
-            position: absolute; width: 20px; height: 20px; border: 2px solid #d4af37; border-radius: 50%;
-            transform: translate(-50%, -50%); pointer-events: none; transition: width 0.2s, height 0.2s;
-            box-shadow: 0 0 10px #d4af37;
-        }
+      html, body, #root {
+        background-color: #000000 !important;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      /* Static Loader Styles */
+      #static-loader {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #000000;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #fbbf24; /* yellow-400 */
+        font-family: 'Cinzel', serif;
+        transition: opacity 0.5s ease-out;
+      }
+      .loader-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #333;
+        border-top: 4px solid #fbbf24;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+      
+      /* New Indeterminate Progress Bar */
+      .loader-bar-container {
+        width: 200px;
+        height: 4px;
+        background-color: #333;
+        border-radius: 2px;
+        margin-top: 15px;
+        overflow: hidden;
+        position: relative;
+      }
+      .loader-bar-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 30%;
+        background-color: #fbbf24;
+        animation: loading-bar 2s ease-in-out infinite;
+      }
+      
+      .reload-btn {
+        margin-top: 25px;
+        padding: 10px 20px;
+        background: transparent;
+        border: 1px solid #fbbf24;
+        color: #fbbf24;
+        font-family: 'Cinzel', serif;
+        cursor: pointer;
+        display: none; /* Hidden by default */
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      .reload-btn:hover {
+        background: rgba(251, 191, 36, 0.1);
+      }
+      
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      @keyframes loading-bar {
+        0% { left: -40%; width: 30%; }
+        50% { left: 40%; width: 60%; }
+        100% { left: 100%; width: 30%; }
+      }
+      
+      .error-msg {
+        color: #ef4444;
+        text-align: center;
+        max-width: 80%;
+        margin-top: 20px;
+        font-size: 12px;
+        font-family: monospace;
+        white-space: pre-wrap;
+      }
     </style>
-
-    <script type="importmap">
+<script type="importmap">
 {
   "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
-    "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/+esm",
-    "zustand": "https://esm.sh/zustand@^5.0.9",
-    "react": "https://esm.sh/react@^19.2.3",
-    "@mediapipe/hands": "https://esm.sh/@mediapipe/hands@^0.4.1675469240",
-    "@mediapipe/camera_utils": "https://esm.sh/@mediapipe/camera_utils@^0.3.1675466862",
     "react/": "https://esm.sh/react@^19.2.3/",
-    "@react-three/fiber": "https://esm.sh/@react-three/fiber@^9.4.2",
-    "@react-three/drei": "https://esm.sh/@react-three/drei@^10.7.7",
-    "@react-three/postprocessing": "https://esm.sh/@react-three/postprocessing@^3.0.4",
-    "clsx": "https://esm.sh/clsx@^2.1.1"
+    "react": "https://esm.sh/react@^19.2.3",
+    "path": "https://esm.sh/path@^0.12.7",
+    "three/": "https://esm.sh/three@^0.182.0/",
+    "three": "https://esm.sh/three@^0.182.0",
+    "@mediapipe/tasks-vision": "https://esm.sh/@mediapipe/tasks-vision@^0.10.22-rc.20250304",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "url": "https://esm.sh/url@^0.11.4",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
   }
 }
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-<body>
-
-    <div id="loading-overlay">
-        <div class="spinner"></div>
-        <div class="loading-text">LOADING HOLIDAY MAGIC</div>
+  <body>
+    <!-- Static Loader visible immediately -->
+    <div id="static-loader">
+      <div class="loader-spinner" id="spinner"></div>
+      <div id="loader-text" style="letter-spacing: 0.2em; font-size: 14px;">INITIALIZING...</div>
+      <div class="loader-bar-container">
+        <div class="loader-bar-fill" id="loader-bar"></div>
+      </div>
+      <div id="error-log" class="error-msg"></div>
+      <button id="timeout-reload-btn" class="reload-btn" onclick="window.location.reload()">RELOAD SYSTEM</button>
     </div>
 
-    <div id="ui-layer">
-        <div class="title-container">
-            <h1>MERRY CHRISTMAS</h1>
-            <div class="subtitle">Interactive Gesture Experience</div>
-        </div>
+    <!-- Watchdog Script -->
+    <script>
+      (function() {
+        const TIMEOUT_MS = 60000; // 1 Minute Watchdog
         
-        <div class="controls">
-            <input type="file" id="hidden-input" accept="image/*">
-            <button id="upload-btn" onclick="document.getElementById('hidden-input').click()">Add Memories</button>
-        </div>
-        
-        <div class="debug-info">Press 'H' to toggle UI</div>
-        <div id="cursor" style="display:none;"></div>
-    </div>
+        // Start the timer immediately
+        const timer = setTimeout(() => {
+          console.error("WATCHDOG: Initialization timed out after " + TIMEOUT_MS + "ms.");
+          
+          const loaderText = document.getElementById('loader-text');
+          const errorLog = document.getElementById('error-log');
+          const spinner = document.getElementById('spinner');
+          const bar = document.querySelector('.loader-bar-container');
+          const btn = document.getElementById('timeout-reload-btn');
+          
+          if (loaderText) loaderText.innerHTML = "INITIALIZATION TIMED OUT";
+          if (loaderText) loaderText.style.color = "#ef4444";
+          
+          if (errorLog) errorLog.innerText = "Possible causes:\n1. Network Blocked (Model Download)\n2. Camera Permission Ignored\n3. Hardware Acceleration Failed";
+          
+          // Hide processing animations
+          if (spinner) spinner.style.display = 'none';
+          if (bar) bar.style.display = 'none';
+          
+          // Show reload button
+          if (btn) btn.style.display = 'block';
+          
+        }, TIMEOUT_MS);
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-        import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-        import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-        import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
-
-        // --- Configuration ---
-        const PARTICLE_COUNT = 1500;
-        const MODES = { TREE: 0, SCATTER: 1, FOCUS: 2 };
-        const COLORS = [0xd4af37, 0x8b0000, 0x006400, 0xffffff]; // Gold, Red, Green, White
-
-        // --- Global State ---
-        let state = {
-            mode: MODES.TREE,
-            targetMode: MODES.TREE,
-            transition: 0,
-            handPresent: false,
-            gesture: 'NONE',
-            photos: []
+        // Function for React App to call when it's ready
+        window.stopWatchdog = function() {
+          console.log("WATCHDOG: System healthy. Timer cancelled.");
+          clearTimeout(timer);
         };
-
-        // --- Three.js Setup ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 0, 30);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.toneMapping = THREE.ReinhardToneMapping;
-        document.body.appendChild(renderer.domElement);
-
-        const environment = new RoomEnvironment();
-        const pmremGenerator = new THREE.PMREMGenerator(renderer);
-        scene.environment = pmremGenerator.fromScene(environment).texture;
-
-        // Post Processing
-        const composer = new EffectComposer(renderer);
-        const renderPass = new RenderPass(scene, camera);
-        composer.addPass(renderPass);
-
-        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-        bloomPass.threshold = 0.5;
-        bloomPass.strength = 1.2;
-        bloomPass.radius = 0.5;
-        composer.addPass(bloomPass);
-
-        const outputPass = new OutputPass();
-        composer.addPass(outputPass);
-
-        // --- Lighting ---
-        const ambientLight = new THREE.AmbientLight(0x404040, 2);
-        scene.add(ambientLight);
-
-        const spotLight = new THREE.SpotLight(0xffeebb, 100);
-        spotLight.position.set(0, 20, 10);
-        spotLight.angle = Math.PI / 4;
-        spotLight.penumbra = 0.5;
-        scene.add(spotLight);
-
-        // --- Assets & Geometries ---
-        // Candy Cane Geometry
-        const curvePath = new THREE.CatmullRomCurve3([
-            new THREE.Vector3(0, -1, 0),
-            new THREE.Vector3(0, 1, 0),
-            new THREE.Vector3(0, 1.5, 0.2),
-            new THREE.Vector3(0, 1.4, 0.6),
-        ]);
-        const candyGeo = new THREE.TubeGeometry(curvePath, 20, 0.1, 8, false);
-        const boxGeo = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-        const sphereGeo = new THREE.SphereGeometry(0.3, 16, 16);
-        const photoGeo = new THREE.BoxGeometry(3, 3, 0.1);
-
-        const materialBase = new THREE.MeshStandardMaterial({ 
-            metalness: 0.9, roughness: 0.1, envMapIntensity: 1.0 
-        });
-        
-        const loader = new THREE.TextureLoader();
-        const defaultPhotoTex = createTextTexture("Merry Christmas");
-
-        function createTextTexture(text) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512; canvas.height = 512;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#111'; ctx.fillRect(0,0,512,512);
-            ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 20; ctx.strokeRect(20,20,472,472);
-            ctx.font = '60px Times New Roman'; ctx.fillStyle = '#d4af37'; ctx.textAlign = 'center';
-            ctx.fillText(text, 256, 256);
-            const tex = new THREE.CanvasTexture(canvas);
-            tex.colorSpace = THREE.SRGBColorSpace;
-            return tex;
-        }
-
-        // --- Particle System ---
-        class Particle {
-            constructor(index) {
-                this.index = index;
-                this.type = Math.random(); // 0-0.3: Box, 0.3-0.6: Sphere, 0.6-0.9: Candy, 0.9-1: Potential Photo
-                
-                // Mesh setup
-                let geo, mat = materialBase.clone();
-                mat.color.setHex(COLORS[Math.floor(Math.random() * COLORS.length)]);
-
-                if (this.type < 0.3) {
-                    geo = boxGeo;
-                } else if (this.type < 0.6) {
-                    geo = sphereGeo;
-                } else if (this.type < 0.9) {
-                    geo = candyGeo;
-                    mat.color.setHex(0xff0000); // Red Candy
-                } else {
-                    this.isPhotoHolder = true;
-                    geo = photoGeo;
-                    mat = new THREE.MeshStandardMaterial({ 
-                        color: 0xffffff, map: defaultPhotoTex, metalness: 0.8, roughness: 0.2 
-                    });
-                    this.photoId = null;
-                }
-
-                this.mesh = new THREE.Mesh(geo, mat);
-                this.mesh.castShadow = true;
-                this.mesh.receiveShadow = true;
-                
-                // Motion properties
-                this.pos = new THREE.Vector3();
-                this.targetPos = new THREE.Vector3();
-                this.velocity = new THREE.Vector3(
-                    (Math.random() - 0.5) * 0.05,
-                    (Math.random() - 0.5) * 0.05,
-                    (Math.random() - 0.5) * 0.05
-                );
-                this.rotationAxis = new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize();
-                this.rotationSpeed = Math.random() * 0.02 + 0.01;
-
-                // Tree position pre-calc
-                const t = index / PARTICLE_COUNT;
-                const angle = t * 50 * Math.PI;
-                const maxRadius = 8;
-                const radius = maxRadius * (1 - t); // Cone
-                this.treePos = new THREE.Vector3(
-                    Math.cos(angle) * radius,
-                    (t * 20) - 10,
-                    Math.sin(angle) * radius
-                );
-
-                this.scatterPos = new THREE.Vector3(
-                    (Math.random() - 0.5) * 25,
-                    (Math.random() - 0.5) * 20,
-                    (Math.random() - 0.5) * 15
-                );
-
-                this.mesh.position.copy(this.treePos);
-                scene.add(this.mesh);
-            }
-
-            update(mode, focusedPhoto) {
-                // Determine Target Position
-                if (mode === MODES.TREE) {
-                    this.targetPos.copy(this.treePos);
-                    this.mesh.rotation.y += 0.01;
-                } else if (mode === MODES.SCATTER) {
-                    // Float around scatter pos
-                    this.targetPos.copy(this.scatterPos);
-                    this.mesh.position.add(this.velocity);
-                    // Wrap around
-                    if (this.mesh.position.distanceTo(this.scatterPos) > 5) {
-                        this.velocity.negate();
-                    }
-                    this.mesh.rotateOnAxis(this.rotationAxis, this.rotationSpeed);
-                } else if (mode === MODES.FOCUS) {
-                    if (this === focusedPhoto) {
-                        this.targetPos.set(0, 1, 20); // Front and center
-                        this.mesh.lookAt(camera.position);
-                    } else {
-                         // Push back
-                        this.targetPos.copy(this.scatterPos).multiplyScalar(1.5);
-                        this.mesh.rotateOnAxis(this.rotationAxis, this.rotationSpeed * 0.5);
-                    }
-                }
-
-                // Lerp Position
-                const lerpSpeed = mode === MODES.FOCUS && this === focusedPhoto ? 0.1 : 0.03;
-                this.mesh.position.lerp(this.targetPos, lerpSpeed);
-
-                // Scale Logic
-                let targetScale = 1;
-                if (mode === MODES.FOCUS) {
-                    targetScale = this === focusedPhoto ? 2.5 : 0.5;
-                } else if (mode === MODES.TREE) {
-                    targetScale = 1;
-                } else {
-                    targetScale = 1.2;
-                }
-                
-                if (this.isPhotoHolder && !this.photoId && mode === MODES.TREE) {
-                    // Hide unused photo holders in tree mode to look cleaner, 
-                    // or treat them as ornaments. Let's treat as ornaments.
-                    this.mesh.scale.lerp(new THREE.Vector3(0.1, 0.1, 0.1), 0.1); 
-                } else {
-                     this.mesh.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
-                }
-            }
-            
-            setPhoto(texture, id) {
-                if (this.isPhotoHolder) {
-                    this.mesh.material.map = texture;
-                    this.mesh.material.needsUpdate = true;
-                    this.photoId = id;
-                    // Reset to visible size
-                    this.mesh.scale.set(1,1,1);
-                }
-            }
-        }
-
-        const particles = [];
-        const mainGroup = new THREE.Group();
-        scene.add(mainGroup);
-
-        // Hijack scene.add to add to mainGroup instead for rotation
-        const _oldAdd = scene.add;
-        scene.add = function(obj) { mainGroup.add(obj); };
-        
-        // Re-add lights to scene root so they don't rotate with hands
-        mainGroup.remove(ambientLight); mainGroup.remove(spotLight);
-        _oldAdd.call(scene, ambientLight); _oldAdd.call(scene, spotLight);
-
-        // Create Particles
-        for (let i = 0; i < PARTICLE_COUNT; i++) {
-            particles.push(new Particle(i));
-        }
-        // Helper to find particles capable of holding photos
-        const photoParticles = particles.filter(p => p.isPhotoHolder);
-        let activePhotoIndex = 0;
-        let focusedParticle = null;
-
-        // --- Interaction Logic ---
-        function handleFile(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => {
-                    const tex = new THREE.Texture(img);
-                    tex.colorSpace = THREE.SRGBColorSpace;
-                    tex.needsUpdate = true;
-                    
-                    // Assign to next available slot
-                    const target = photoParticles[activePhotoIndex % photoParticles.length];
-                    target.setPhoto(tex, Date.now());
-                    activePhotoIndex++;
-                    
-                    // Trigger scatter briefly to show it
-                    if (state.mode === MODES.TREE) {
-                         state.mode = MODES.SCATTER;
-                         setTimeout(() => state.mode = MODES.TREE, 2000);
-                    }
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-        document.getElementById('hidden-input').addEventListener('change', handleFile);
-
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'h' || e.key === 'H') {
-                const ui = document.getElementById('ui-layer');
-                ui.style.display = ui.style.display === 'none' ? 'flex' : 'none';
-            }
-        });
-
-        // --- MediaPipe Logic ---
-        let handLandmarker = undefined;
-        let lastVideoTime = -1;
-        let results = undefined;
-        // Create video element and attach to DOM to ensure correct readiness state
-        const video = document.createElement('video');
-        video.id = "webcam";
-        video.autoplay = true; 
-        video.playsInline = true;
-        // Visibility hidden allows layout (if needed) but hides it, better than display:none for some internal browser rendering logic
-        video.style.visibility = "hidden"; 
-        video.style.position = "absolute";
-        video.style.width = "auto";
-        video.style.height = "auto";
-        video.style.pointerEvents = "none";
-        document.body.appendChild(video);
-
-        async function initVision() {
-            const vision = await FilesetResolver.forVisionTasks(
-                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
-            );
-            handLandmarker = await HandLandmarker.createFromOptions(vision, {
-                baseOptions: {
-                    modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
-                    delegate: "GPU"
-                },
-                runningMode: "VIDEO",
-                numHands: 1
-            });
-            
-            // Start Camera
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
-                video.srcObject = stream;
-                video.addEventListener('loadeddata', () => {
-                    video.play();
-                    document.getElementById('loading-overlay').style.opacity = '0';
-                    setTimeout(() => document.getElementById('loading-overlay').remove(), 1000);
-                });
-            } catch (err) {
-                console.error("Camera access denied or error:", err);
-                document.querySelector('.loading-text').innerText = "CAMERA ERROR - CHECK PERMISSIONS";
-            }
-        }
-
-        initVision();
-
-        function detectGesture(landmarks) {
-            const wrist = landmarks[0];
-            const tips = [8, 12, 16, 20]; // Index, Middle, Ring, Pinky tips
-            
-            // Calculate avg distance from tips to wrist
-            let avgDist = 0;
-            tips.forEach(idx => {
-                const d = Math.hypot(landmarks[idx].x - wrist.x, landmarks[idx].y - wrist.y);
-                avgDist += d;
-            });
-            avgDist /= 4;
-
-            // Pinch: Thumb tip (4) close to Index tip (8)
-            const pinchDist = Math.hypot(landmarks[4].x - landmarks[8].x, landmarks[4].y - landmarks[8].y);
-
-            if (pinchDist < 0.05) return 'PINCH';
-            if (avgDist < 0.25) return 'FIST';
-            if (avgDist > 0.4) return 'OPEN_HAND';
-            return 'NONE';
-        }
-
-        // --- Animation Loop ---
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // Vision Update
-            // Enhanced guard clause to prevent "roi->width > 0" errors
-            if (handLandmarker && video && video.readyState >= 2 && !video.paused && !video.ended) {
-                if (video.videoWidth > 0 && video.videoHeight > 0 && video.currentTime !== lastVideoTime) {
-                    lastVideoTime = video.currentTime;
-                    try {
-                        results = handLandmarker.detectForVideo(video, performance.now());
-                    } catch (e) {
-                        console.error("MediaPipe error:", e);
-                    }
-                }
-            }
-
-            // Gesture Processing
-            if (results && results.landmarks && results.landmarks.length > 0) {
-                const landmarks = results.landmarks[0];
-                const gesture = detectGesture(landmarks);
-                state.gesture = gesture;
-                
-                // Cursor visualization
-                const cursor = document.getElementById('cursor');
-                if (cursor) {
-                    cursor.style.display = 'block';
-                    // Invert X for mirror effect
-                    const cx = (1 - landmarks[9].x) * 100; 
-                    const cy = landmarks[9].y * 100;
-                    cursor.style.left = cx + '%';
-                    cursor.style.top = cy + '%';
-                }
-
-                // Map palm to scene rotation (X/Y)
-                // Smooth lerp for rotation
-                const targetRotY = (landmarks[9].x - 0.5) * 2; // -1 to 1
-                const targetRotX = (landmarks[9].y - 0.5) * 2;
-                mainGroup.rotation.y += (targetRotY - mainGroup.rotation.y) * 0.05;
-                mainGroup.rotation.x += (targetRotX - mainGroup.rotation.x) * 0.05;
-
-                // State Machine
-                if (gesture === 'FIST') {
-                    state.mode = MODES.TREE;
-                    focusedParticle = null;
-                } else if (gesture === 'OPEN_HAND') {
-                    state.mode = MODES.SCATTER;
-                    focusedParticle = null;
-                } else if (gesture === 'PINCH') {
-                    if (state.mode !== MODES.FOCUS) {
-                        state.mode = MODES.FOCUS;
-                        // Select a random photo particle that has a photo, or just any photo holder
-                        const valid = photoParticles.filter(p => p.photoId !== null);
-                        if (valid.length > 0) {
-                            focusedParticle = valid[Math.floor(Math.random() * valid.length)];
-                        } else {
-                            focusedParticle = photoParticles[0];
-                        }
-                    }
-                }
-            } else {
-                const cursor = document.getElementById('cursor');
-                if (cursor) cursor.style.display = 'none';
-                
-                // Auto rotate tree if no hand
-                if (state.mode === MODES.TREE) {
-                    mainGroup.rotation.y += 0.002;
-                    mainGroup.rotation.x *= 0.95; // Reset tilt
-                }
-            }
-
-            // Update Particles
-            particles.forEach(p => p.update(state.mode, focusedParticle));
-
-            composer.render();
-        }
-
-        // Handle Window Resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            composer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        animate();
-
+      })();
     </script>
-<script type="module" src="/index.tsx"></script>
+
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
 </body>
 </html>

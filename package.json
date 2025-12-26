@@ -1,29 +1,28 @@
 {
-  "name": "interactivegesturechristmastree",
+  "name": "noel-elegance-tree",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "three": "0.160.0",
-    "@mediapipe/tasks-vision": "0.10.3",
-    "zustand": "^5.0.9",
-    "react": "^19.2.3",
-    "@mediapipe/hands": "^0.4.1675469240",
-    "@mediapipe/camera_utils": "^0.3.1675466862",
-    "@react-three/fiber": "^9.4.2",
-    "@react-three/drei": "^10.7.7",
-    "@react-three/postprocessing": "^3.0.4",
-    "clsx": "^2.1.1"
+    "@mediapipe/tasks-vision": "0.10.14",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": "^0.160.0"
   },
   "devDependencies": {
-    "@types/node": "^22.14.0",
-    "@vitejs/plugin-react": "^5.0.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.160.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.4"
   }
 }
